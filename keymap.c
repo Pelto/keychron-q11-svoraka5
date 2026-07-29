@@ -204,6 +204,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 // ── NUMPAD ─────────────────────────────────────────────────────────────────────
 // Right-hand numpad overlay. Hold NUMPAD key for momentary, double-tap to lock,
 // then tap or double-tap to unlock.
+// While a NUMPAD key is held, the right knob zooms instead of changing volume.
 [NUMPAD] = LAYOUT_92_iso(
     KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
     KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_PSLS, KC_PAST, KC_PMNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,          KC_TRNS,
@@ -340,6 +341,12 @@ typedef enum { NP_NONE, NP_TAP, NP_HOLD, NP_DOUBLE } np_td_state_t;
 static np_td_state_t numpad_td_state = NP_NONE;
 static bool numpad_locked = false;
 
+// True while a NUMPAD key (M5 or <>) is physically held.  Set on key-down in
+// process_record_user rather than derived from the layer state, so the right
+// knob switches to zoom instantly and a *locked* numpad still leaves the knob
+// on volume.
+static bool numpad_key_held = false;
+
 static np_td_state_t numpad_td_current(tap_dance_state_t *state) {
     if (state->count == 1) {
         return (state->interrupted || !state->pressed) ? NP_TAP : NP_HOLD;
@@ -408,6 +415,11 @@ tap_dance_action_t tap_dance_actions[] = {
 // ──────────────────────────────────────────────
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
+        // ── NUMPAD key held → right knob zooms instead of adjusting volume ──
+        case TD(TD_NUMPAD):
+            numpad_key_held = record->event.pressed;
+            return true;  // let the tap dance handle the key itself
+
         // ── Grave / acute (dead key + space for literal character) ──
         case SE_ACUT: // ` / ´
             if (record->event.pressed) {
@@ -723,6 +735,7 @@ bool dip_switch_update_user(uint8_t index, bool active) {
         layer_off(WIN_QWERTY);
         // Release any NUMPAD lock so state doesn't leak across OS switch
         numpad_locked = false;
+        numpad_key_held = false;
         layer_off(NUMPAD);
         if (active) {
             default_layer_set(1UL << MAC_SVORAK);
@@ -745,6 +758,7 @@ bool process_detected_host_os_user(os_variant_t detected_os) {
             layer_off(MAC_QWERTY);
             layer_off(WIN_QWERTY);
             numpad_locked = false;
+            numpad_key_held = false;
             layer_off(NUMPAD);
             default_layer_set(1UL << MAC_SVORAK);
             break;
@@ -752,6 +766,7 @@ bool process_detected_host_os_user(os_variant_t detected_os) {
             layer_off(MAC_QWERTY);
             layer_off(WIN_QWERTY);
             numpad_locked = false;
+            numpad_key_held = false;
             layer_off(NUMPAD);
             default_layer_set(1UL << WIN_SVORAK);
             break;
@@ -780,17 +795,27 @@ layer_state_t layer_state_set_user(layer_state_t state) {
 }
 
 // ──────────────────────────────────────────────
-// Encoder (knob) — volume control
+// Encoder (knob) — navigation, volume, zoom
 // ──────────────────────────────────────────────
 #ifdef ENCODER_ENABLE
 bool encoder_update_user(uint8_t index, bool clockwise) {
+    bool is_mac = (default_layer_state & (1UL << MAC_SVORAK)) != 0;
+
     if (index == 0) {
         // Left knob: back & forward (Cmd+]/Cmd+[ on Mac, Alt+Right/Alt+Left on Win)
-        bool is_mac = (default_layer_state & (1UL << MAC_SVORAK)) != 0;
         if (is_mac) {
             tap_code16(clockwise ? LGUI(KC_RBRC) : LGUI(KC_LBRC));
         } else {
             tap_code16(clockwise ? LALT(KC_RGHT) : LALT(KC_LEFT));
+        }
+    } else if (numpad_key_held) {
+        // Right knob + NUMPAD key held: zoom in / out.
+        // On the Swedish layout KC_MINS is '+' and KC_SLSH is '-', so these
+        // send literally Cmd/Ctrl plus the physical +/- keys.
+        if (is_mac) {
+            tap_code16(clockwise ? LGUI(KC_MINS) : LGUI(KC_SLSH));
+        } else {
+            tap_code16(clockwise ? LCTL(KC_MINS) : LCTL(KC_SLSH));
         }
     } else {
         // Right knob: volume

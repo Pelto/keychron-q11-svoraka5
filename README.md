@@ -135,6 +135,8 @@ Programming symbols via native Swedish keyboard combos (same layout on Mac and W
 
 OS-slider flip or auto-detected OS change also clears the lock.
 
+While the key is held, the right knob also switches from volume to zoom — see [Encoders](#encoders).
+
 ### FN layer (hold FN)
 
 Mac and Win have separate layers with identical layout but OS-specific shortcuts.
@@ -238,8 +240,8 @@ Both QWERTY layers include Snap Tap (Simultaneous Opposing Cardinal Directions f
 | MC_3 × 2 | Sleep (Opt+Cmd+Eject) | Sleep (USB HID System Sleep) |
 | MC_3 × 3 | Shut down (Ctrl+Opt+Cmd+Eject) | Shut down (USB HID System Power) |
 | MC_4 | Calculator | Calculator |
-| NUMPAD key (bottom-left) | Hold = momentary NUMPAD; double-tap = lock; tap or double-tap = unlock | Same |
-| `<>` key (Svorak only) | Hold = momentary NUMPAD; double-tap = lock; tap or double-tap = unlock | Same |
+| NUMPAD key (bottom-left) | Hold = momentary NUMPAD + right knob zooms; double-tap = lock; tap or double-tap = unlock | Same |
+| `<>` key (Svorak only) | Hold = momentary NUMPAD + right knob zooms; double-tap = lock; tap or double-tap = unlock | Same |
 
 ## Encoders
 
@@ -247,3 +249,6 @@ Both QWERTY layers include Snap Tap (Simultaneous Opposing Cardinal Directions f
 |------|--------|-------|
 | Left | Back / Forward (Cmd+[ / Cmd+] on Mac, Alt+Left / Alt+Right on Win) | Mute (Svorak layers) / Toggle Snap Tap (QWERTY layers) |
 | Right | Volume down / up | Mute |
+| Right, while a NUMPAD key is held | Zoom out / in (Cmd+- / Cmd++ on Mac, Ctrl+- / Ctrl++ on Win) | Mute |
+
+The zoom override is tied to the NUMPAD key being **physically held**, not to the NUMPAD layer being active — so a locked numpad leaves the knob on volume.
