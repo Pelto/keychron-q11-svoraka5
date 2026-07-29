@@ -8,6 +8,21 @@
       "excludes": ["caps_lock_indicator", "os_indicator", "socd_indicator"]
     }
   },
+  "encoder_overrides": [
+    {
+      "encoder": "knob_r",
+      "condition": "A NUMPAD key (bottom-left macro key, or the `<>` key on Svorak layers) is physically held. Deliberately not keyed on the NUMPAD layer being active, so a double-tap-locked numpad leaves the knob on volume.",
+      "description": "Right knob zooms instead of adjusting volume. On the Swedish layout KC_MINS is '+' and KC_SLSH is '-', so these send Cmd/Ctrl plus the physical +/- keys.",
+      "mac": {
+        "cw": "LGUI(KC_MINS)",
+        "ccw": "LGUI(KC_SLSH)"
+      },
+      "win": {
+        "cw": "LCTL(KC_MINS)",
+        "ccw": "LCTL(KC_SLSH)"
+      }
+    }
+  ],
   "layers": [
     {
       "id": 0,
