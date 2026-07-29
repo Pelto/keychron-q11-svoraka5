@@ -735,6 +735,7 @@ bool dip_switch_update_user(uint8_t index, bool active) {
         layer_off(WIN_QWERTY);
         // Release any NUMPAD lock so state doesn't leak across OS switch
         numpad_locked = false;
+        numpad_key_held = false;
         layer_off(NUMPAD);
         if (active) {
             default_layer_set(1UL << MAC_SVORAK);
@@ -757,6 +758,7 @@ bool process_detected_host_os_user(os_variant_t detected_os) {
             layer_off(MAC_QWERTY);
             layer_off(WIN_QWERTY);
             numpad_locked = false;
+            numpad_key_held = false;
             layer_off(NUMPAD);
             default_layer_set(1UL << MAC_SVORAK);
             break;
@@ -764,6 +766,7 @@ bool process_detected_host_os_user(os_variant_t detected_os) {
             layer_off(MAC_QWERTY);
             layer_off(WIN_QWERTY);
             numpad_locked = false;
+            numpad_key_held = false;
             layer_off(NUMPAD);
             default_layer_set(1UL << WIN_SVORAK);
             break;
